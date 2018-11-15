@@ -176,7 +176,10 @@ function Invoke-PSDocument {
         [PSDocs.Configuration.MarkdownEncoding]$Encoding = [PSDocs.Configuration.MarkdownEncoding]::Default,
 
         [Parameter(Mandatory = $False)]
-        [String[]]$Culture
+        [String[]]$Culture,
+
+        [Parameter(Mandatory = $False)]
+        [PSDocs.Configuration.OutputFormat]$OutputFormat = [PSDocs.Configuration.OutputFormat]::Markdown
     )
 
     begin {
@@ -884,7 +887,10 @@ function GenerateDocumentPath {
         [PSDocs.Configuration.MarkdownEncoding]$Encoding = [PSDocs.Configuration.MarkdownEncoding]::Default,
 
         [Parameter(Mandatory = $False)]
-        [String[]]$Culture
+        [String[]]$Culture,
+
+        [Parameter(Mandatory = $False)]
+        [PSDocs.Configuration.OutputFormat]$OutputFormat = [PSDocs.Configuration.OutputFormat]::Default
     )
 
     begin {
@@ -921,11 +927,19 @@ function GenerateDocumentPath {
             $OutputPath
         );
 
+        $PSDocs.OutputFormat = $OutputFormat;
+
         $PSDocs.WriteDocumentHook = {
             param ([PSDocs.Configuration.PSDocumentOption]$option, [PSDocs.Models.Document]$document)
 
-            # Visit the document with the specified processor
-            (NewMarkdownProcessor).Process($option, $document) | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+            if ($PSDocs.OutputFormat -eq [PSDocs.Configuration.OutputFormat]::OpenXml) {
+                (NewOpenXmlProcessor).Process($option, $document)
+                #  | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+            }
+            else {
+                # Visit the document with the specified processor
+                (NewMarkdownProcessor).Process($option, $document) | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+            }
         }
 
         $PSDocs.InstanceName = $InstanceName;
@@ -978,7 +992,10 @@ function GenerateDocumentInline {
         [PSDocs.Configuration.MarkdownEncoding]$Encoding = [PSDocs.Configuration.MarkdownEncoding]::Default,
 
         [Parameter(Mandatory = $False)]
-        [String[]]$Culture
+        [String[]]$Culture,
+
+        [Parameter(Mandatory = $False)]
+        [PSDocs.Configuration.OutputFormat]$OutputFormat = [PSDocs.Configuration.OutputFormat]::Default
     )
 
     begin {
@@ -1026,11 +1043,19 @@ function GenerateDocumentInline {
             $OutputPath
         );
 
+        $PSDocs.OutputFormat = $OutputFormat;
+
         $PSDocs.WriteDocumentHook = {
             param ([PSDocs.Configuration.PSDocumentOption]$option, [PSDocs.Models.Document]$document)
 
-            # Visit the document with the specified processor
-            (NewMarkdownProcessor).Process($option, $document) | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+            if ($PSDocs.OutputFormat -eq [PSDocs.Configuration.OutputFormat]::OpenXml) {
+                (NewOpenXmlProcessor).Process($option, $document)
+                #  | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+            }
+            else {
+                # Visit the document with the specified processor
+                (NewMarkdownProcessor).Process($option, $document) | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+            }
         }
 
         $PSDocs.InstanceName = $InstanceName;
@@ -1246,6 +1271,13 @@ function NewMarkdownProcessor {
 
     process {
         return New-Object -TypeName PSDocs.Processor.Markdown.MarkdownProcessor;
+    }
+}
+
+function NewOpenXmlProcessor {
+
+    process {
+        return New-Object -TypeName PSDocs.Processor.Word.WordProcessor;
     }
 }
 
