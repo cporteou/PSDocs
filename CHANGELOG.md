@@ -1,6 +1,9 @@
 
 ## Unreleased
 
+- **Experimental**: Added support for OpenXml to generate Office Word (.docx) documents.
+  - Add `-OutputFormat` parameter to `Invoke-PSDocument`. This parameter allows generation of documents as OpenXml instead of Markdown.
+
 ## v0.6.0
 
 - Fix consistency of line break generation before and after document content.

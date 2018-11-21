@@ -1,7 +1,6 @@
-﻿using System;
-using System.Text;
-using PSDocs.Configuration;
+﻿using PSDocs.Configuration;
 using PSDocs.Models;
+using System.Text;
 
 namespace PSDocs.Processor.Markdown
 {

@@ -1,10 +1,12 @@
-﻿using System;
-using System.IO;
-using PSDocs.Configuration;
+﻿using PSDocs.Configuration;
 using PSDocs.Models;
+using System.IO;
 
 namespace PSDocs.Processor.Markdown
 {
+    /// <summary>
+    /// A processor to handle document generation as markdown (.md).
+    /// </summary>
     public sealed class MarkdownProcessor
     {
         private const string MARKDOWN_BLOCKQUOTE = "> ";
