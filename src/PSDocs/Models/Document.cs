@@ -8,6 +8,7 @@ namespace PSDocs.Models
         public Document()
         {
             Metadata = new OrderedDictionary();
+            DocumentName = null;
             Path = null;
         }
 
@@ -17,6 +18,8 @@ namespace PSDocs.Models
         }
 
         public OrderedDictionary Metadata { get; set; }
+
+        public string DocumentName { get; set; }
 
         public string Path { get; set; }
     }

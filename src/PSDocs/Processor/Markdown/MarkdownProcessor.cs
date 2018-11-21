@@ -9,14 +9,14 @@ namespace PSDocs.Processor.Markdown
     {
         private const string MARKDOWN_BLOCKQUOTE = "> ";
 
-        public string Process(PSDocumentOption option, Document document)
+        public string Process(PSDocsContext executionContext, Document document)
         {
             if (document == null)
             {
                 return string.Empty;
             }
 
-            var context = new MarkdownProcessorContext(option, document);
+            var context = new MarkdownProcessorContext(executionContext.Option, document);
 
             Document(context);
 

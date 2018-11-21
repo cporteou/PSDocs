@@ -10,7 +10,7 @@ namespace PSDocs.Configuration
     /// <summary>
     /// A delgate to allow callback to PowerShell to get current working path.
     /// </summary>
-    public delegate string GetWorkingPathDelegate();
+    public delegate string PathDelegate();
 
     public sealed class PSDocumentOption
     {
@@ -42,7 +42,7 @@ namespace PSDocs.Configuration
         /// <summary>
         /// A callback that is overridden by PowerShell so that the current working path can be retrieved.
         /// </summary>
-        public static GetWorkingPathDelegate GetWorkingPath = () => Directory.GetCurrentDirectory();
+        public static PathDelegate GetWorkingPath = () => Directory.GetCurrentDirectory();
 
         /// <summary>
         /// Reserved for internal use.

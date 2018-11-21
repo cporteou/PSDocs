@@ -105,11 +105,13 @@ function Document {
 
                         # Build a path for the document
                         if ($Null -eq $PSDocs.Culture) {
-                            $document.Path = Join-Path -Path $PSDocs.OutputPath -ChildPath "$instance.md";
+                            $document.DocumentName = $instance;
+                            $document.Path = $PSDocs.OutputPath;
                         }
                         else {
                             $culturePath = Join-Path -Path $PSDocs.OutputPath -ChildPath $cultureName;
-                            $document.Path = Join-Path -Path $culturePath -ChildPath "$instance.md";
+                            $document.DocumentName = $instance;
+                            $document.Path = $culturePath;
                         }
 
                         $innerResult = $Body.Invoke() | ConvertToNode;
@@ -121,10 +123,8 @@ function Document {
                         Write-Verbose -Message "[Doc] -- Document results [$($document.Node.Count)]";
 
                         # Create parent path if it doesn't exist
-                        $documentParent = Split-Path -Path $document.Path -Parent;
-
-                        if (!(Test-Path -Path $documentParent)) {
-                            $Null = New-Item -Path $documentParent -ItemType Directory -Force;
+                        if (!(Test-Path -Path $document.Path)) {
+                            $Null = New-Item -Path $document.Path -ItemType Directory -Force;
                         }
 
                         Write-Verbose -Message "[Doc] -- Document output path: $($document.Path)";
@@ -927,18 +927,19 @@ function GenerateDocumentPath {
             $OutputPath
         );
 
+        $PSDocs.ModulePath = $PSModuleRoot;
         $PSDocs.OutputFormat = $OutputFormat;
+        $PSDocs.PassThru = $PassThru;
 
         $PSDocs.WriteDocumentHook = {
-            param ([PSDocs.Configuration.PSDocumentOption]$option, [PSDocs.Models.Document]$document)
+            param ([PSDocs.Models.PSDocsContext]$context, [PSDocs.Models.Document]$document)
 
-            if ($PSDocs.OutputFormat -eq [PSDocs.Configuration.OutputFormat]::OpenXml) {
-                (NewOpenXmlProcessor).Process($option, $document)
-                #  | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+            if ($context.OutputFormat -eq [PSDocs.Configuration.OutputFormat]::OpenXml) {
+                (NewOpenXmlProcessor).Process($context, $document)
             }
             else {
                 # Visit the document with the specified processor
-                (NewMarkdownProcessor).Process($option, $document) | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+                (NewMarkdownProcessor).Process($context, $document) | WriteDocumentContent -Path (Join-Path -Path $document.Path -ChildPath ([String]::Concat($document.DocumentName, ".md"))) -PassThru:$PassThru -Encoding:$context.Option.Markdown.Encoding;
             }
         }
 
@@ -1044,17 +1045,18 @@ function GenerateDocumentInline {
         );
 
         $PSDocs.OutputFormat = $OutputFormat;
+        $PSDocs.ModulePath = $PSModuleRoot;
+        $PSDocs.PassThru = $PassThru;
 
         $PSDocs.WriteDocumentHook = {
-            param ([PSDocs.Configuration.PSDocumentOption]$option, [PSDocs.Models.Document]$document)
+            param ([PSDocs.Models.PSDocsContext]$context, [PSDocs.Models.Document]$document)
 
-            if ($PSDocs.OutputFormat -eq [PSDocs.Configuration.OutputFormat]::OpenXml) {
-                (NewOpenXmlProcessor).Process($option, $document)
-                #  | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+            if ($context.OutputFormat -eq [PSDocs.Configuration.OutputFormat]::OpenXml) {
+                (NewOpenXmlProcessor).Process($context, $document)
             }
             else {
                 # Visit the document with the specified processor
-                (NewMarkdownProcessor).Process($option, $document) | WriteDocumentContent -Path $document.Path -PassThru:$PassThru -Encoding:$option.Markdown.Encoding;
+                (NewMarkdownProcessor).Process($context, $document) | WriteDocumentContent -Path (Join-Path -Path $document.Path -ChildPath ([String]::Concat($document.DocumentName, ".md"))) -PassThru:$PassThru -Encoding:$context.Option.Markdown.Encoding;
             }
         }
 
